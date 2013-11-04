@@ -19,35 +19,34 @@ Do realizacji zadania zostanie wykorzystany algorytm Needlemana -- Wunscha, któ
 
 \begin{equation}
   F(i, j, k)= max \begin{cases}
-    F(i-1, j-1, k-1) + e(s_i, t_j) + e(s_i, u_k) + e(t_j, u_k)\\
-    F(i-1, j-1, k) + e(s_i, t_j) + d\\
-    F(i-1, j, k-1) + e(s_i, u_k) + d\\
-    F(i, j-1, k-1) + e(t_j, u_k) + d\\
-    F(i-1, j, k) + 2d\\
-    F(i, j-1, k) + 2d\\
-    F(i, j, k-1) + 2d
+    F(i-1, j-1, k-1) + e(s_i, t_j, u_k)\\
+    F(i-1, j-1, k) + e(s_i, t_j, -)\\
+    F(i-1, j, k-1) + e(s_i, -,u_k)\\
+    F(i, j-1, k-1) + e(-, t_j, u_k)\\
+    F(i-1, j, k) + e(s_i, -, -)\\
+    F(i, j-1, k) + e(-, t_j, -)\\
+    F(i, j, k-1) + e(-, -, u_k)
   \end{cases}
 \end{equation}
 
 gdzie:\\
-$e(x, y)$ - wartość macierzy kar i nagród\\
-$d$ - kara za przerwę
-
+macierz kar i nagród uwzględnia przerwy\\
+$e(s_i, t_j, u_k) = e(s_i, t_j) + e(s_i, u_k) + e(t_j, u_k)$\\
 \section{Założenia}
 
 \subsection{Założenia dla algorytmu}
 \begin{itemize}
-\item sekwencje wejściowe są homologiczne,
-\item sekwencje są sekwencjami DNA,
-\item ocena dopasowania sekwencji oparta o punktację z macierzy PAM30 lub PAM70.
-\end
+\item sekwencje wejściowe są sekwencjami DNA (alfabet $\{A, G, C, T\}$),
+\item wejściem jest plik z sekwencjami oraz plik z macierzą kar i nagród (uwzględniającą przerwy),
+\item wyjściem jest plik tekstowy z najlepszym dopasowaniem i jego punktacją.
+\end{itemize}
 
 \subsection{Założenia implementacyjne}
 \begin{itemize}
 \item interakcja z aplikacją typowo Unixowa - linia poleceń i pliki,
 \item sekwencje wejściowe dostarczone w plikach,
-\item format sekwencji - na początek wsparcie tylko dla jawnego tekstu,
-\item implementacja aplikacji w języku Scala \href{http://www.scala-lang.org/}{Scala}
-\end
+\item format sekwencji - na początek wsparcie tylko dla jawnego tekstu, kolejne sekwencje oddzielone znakiem nowej linii,
+\item implementacja aplikacji w języku \href{http://www.scala-lang.org/}{Scala}
+\end{itemize}
 
 \end{document}
