@@ -1,7 +1,8 @@
 \documentclass[12pt, a4paper]{article}
-\usepackage[utf8]{inputenc}
-\usepackage{polski}
+\usepackage[MeX]{polski} % Wsparcie dla PL
+\usepackage[utf8]{inputenc} % Kodowanie UTF8 
 \usepackage{geometry}
+\usepackage{hyperref}
 \usepackage{amsmath}
 \title{\textbf{Implementacja algorytmu badającego podobieństwo trzech sekwencji}}
 \author{Anna Stępień \\ Marek Lewandowski}
@@ -33,4 +34,20 @@ $e(x, y)$ - wartość macierzy kar i nagród\\
 $d$ - kara za przerwę
 
 \section{Założenia}
+
+\subsection{Założenia dla algorytmu}
+\begin{itemize}
+\item sekwencje wejściowe są homologiczne,
+\item sekwencje są sekwencjami DNA,
+\item ocena dopasowania sekwencji oparta o punktację z macierzy PAM30 lub PAM70.
+\end
+
+\subsection{Założenia implementacyjne}
+\begin{itemize}
+\item interakcja z aplikacją typowo Unixowa - linia poleceń i pliki,
+\item sekwencje wejściowe dostarczone w plikach,
+\item format sekwencji - na początek wsparcie tylko dla jawnego tekstu,
+\item implementacja aplikacji w języku Scala \href{http://www.scala-lang.org/}{Scala}
+\end
+
 \end{document}
