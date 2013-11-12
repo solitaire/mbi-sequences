@@ -1,9 +1,11 @@
 \documentclass[12pt, a4paper]{article}
-\usepackage[MeX]{polski} % Wsparcie dla PL
-\usepackage[utf8]{inputenc} % Kodowanie UTF8 
+\usepackage{polski}
+\usepackage[utf8]{inputenc}
+\usepackage[polish]{babel} 
 \usepackage{geometry}
 \usepackage{hyperref}
 \usepackage{amsmath}
+\usepackage[numbers]{natbib}
 \title{\textbf{Implementacja algorytmu badającego podobieństwo trzech sekwencji}}
 \author{Anna Stępień \\ Marek Lewandowski}
 \date{}
@@ -49,4 +51,7 @@ $e(s_i, t_j, u_k) = e(s_i, t_j) + e(s_i, u_k) + e(t_j, u_k)$\\
 \item implementacja aplikacji w języku \href{http://www.scala-lang.org/}{Scala}
 \end{itemize}
 
+\nocite{*}
+\bibliographystyle{plainnat}
+\bibliography{bibliography}
 \end{document}

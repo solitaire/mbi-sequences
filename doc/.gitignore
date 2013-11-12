@@ -1,4 +1,7 @@
 *.aux
 *.log
 *.out
-*.pdf
+*.pdf*.fdb_latexmk
+*.synctex.gz
+doc.pdf
+doc.fdb_latexmk
