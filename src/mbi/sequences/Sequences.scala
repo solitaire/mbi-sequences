@@ -1,6 +1,7 @@
 package mbi.sequences
 
-import mbi.sequences.sequences.{MoveType, Moves, SimilarityMatrix, DNASeq}
+import mbi.sequences.sequences.{MoveType, Moves, DNASeq}
+import nw.structures.{Alphabet, SimilarityMatrix}
 
 /**
  * @author Marek Lewandowski <marek.lewandowski@icompass.pl>
@@ -9,8 +10,7 @@ import mbi.sequences.sequences.{MoveType, Moves, SimilarityMatrix, DNASeq}
 
 package object sequences {
   type DNASeq = Seq[Char]
-  // TODO
-  type SimilarityMatrix = AnyRef
+
 
   /**
    * (doMove, doMove, doMove) means F(i-1, j-1, k-1) which means sequences are similar
@@ -81,7 +81,7 @@ object Sequences {
       (maxAndMove._1, maxAndMove._2 :: acc)
     }
 
-    def e(s: Option[Char], t: Option[Char], u: Option[Char]): Int = ???
+    def e(s: Option[Char], t: Option[Char], u: Option[Char]): Int = sm.get( (Alphabet(s), Alphabet(t), Alphabet(u)))
 
     ???
   }
