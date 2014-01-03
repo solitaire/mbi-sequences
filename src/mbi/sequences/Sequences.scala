@@ -66,6 +66,6 @@ object Sequences {
 
     def e(s: Option[Char], t: Option[Char], u: Option[Char]): Int = ???
 
-
+    ???
   }
 }
