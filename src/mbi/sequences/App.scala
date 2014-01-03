@@ -72,7 +72,7 @@ object App extends scala.App {
 
       val similarityMatrix = SimilarityMatrixReader.read(Source.fromFile(optionsMap("-sm").asInstanceOf[String]).getLines())
 
-      val (seq1, seq2, seq3, alignment) = Sequences.NeedlemanWunsch(sequences(0), sequences(1), sequences(2), similarityMatrix)
+      val (seq1, seq2, seq3, alignment) = Sequences.recursiveNeedlemanWunsch(sequences(0), sequences(1), sequences(2), similarityMatrix)
 
       println(seq1.map(Alphabet.print).mkString)
       println(seq2.map(Alphabet.print).mkString)
