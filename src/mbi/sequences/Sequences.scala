@@ -33,7 +33,7 @@ class Sequences {
 
 object Sequences {
 
-  def NeedlemanWunsch(s1: DNASeq, s2: DNASeq, s3: DNASeq, sm: SimilarityMatrix): Moves = {
+  def NeedlemanWunsch(s: DNASeq, t: DNASeq, u: DNASeq, sm: SimilarityMatrix): Moves = {
 
     /**
      * Head of the Moves is the move corresponding to F(I, J, K) - sequences length. Last element in moves is for F(0,0,0)
@@ -53,18 +53,18 @@ object Sequences {
       val f5: (Int, Moves) = F(i, j - 1, k, acc)
       val f6: (Int, Moves) = F(i, j, k - 1, acc)
 
-      val maxAndMove = ((f._1 + e(s = true, t = true, u = true), (doMove, doMove, doMove)) ::
-        (f1._1 + e(s = true, t = true, u = false), (doMove, doMove, noMove)) ::
-        (f2._1 + e(s = true, t = false, u = true), (doMove, noMove, doMove)) ::
-        (f3._1 + e(s = false, t = true, u = true), (noMove, doMove, doMove)) ::
-        (f4._1 + e(s = true, t = false, u = false), (doMove, noMove, noMove)) ::
-        (f5._1 + e(s = false, t = true, u = false), (noMove, doMove, noMove)) ::
-        (f6._1 + e(s = false, t = false, u = true), (noMove, noMove, doMove)) :: Nil).reduce((t1, t2) => if (t1._1 > t2._1) t1 else t2)
+      val maxAndMove = ((f._1 + e(Some(s(i)), Some(t(j)), Some(u(k))), (doMove, doMove, doMove)) ::
+        (f1._1 + e(Some(s(i)), Some(t(j)), None), (doMove, doMove, noMove)) ::
+        (f2._1 + e(Some(s(i)), None, Some(u(k))), (doMove, noMove, doMove)) ::
+        (f3._1 + e(None, Some(t(j)), Some(u(k))), (noMove, doMove, doMove)) ::
+        (f4._1 + e(Some(s(i)), None, None), (doMove, noMove, noMove)) ::
+        (f5._1 + e(None, Some(t(j)), None), (noMove, doMove, noMove)) ::
+        (f6._1 + e(None, None, Some(u(k))), (noMove, noMove, doMove)) :: Nil).reduce((t1, t2) => if (t1._1 > t2._1) t1 else t2)
 
       (maxAndMove._1, maxAndMove._2 :: acc)
     }
 
-    def e(s: Boolean, t: Boolean, u: Boolean): Int = ???
+    def e(s: Option[Char], t: Option[Char], u: Option[Char]): Int = ???
 
 
   }
