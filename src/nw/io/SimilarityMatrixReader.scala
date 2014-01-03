@@ -9,20 +9,20 @@ object SimilarityMatrixReader {
   /**
    * Expects format
    *
-   * x x x x x x
-   * x x x x x x
-   * x x x x x x
-   * x x x x x x
-   * x x x x x x
+   * x x x x x
+   * x x x x x
+   * x x x x x
+   * x x x x x
+   * x x x x x
    *
    * which is interpreted as matrix
    *
    * A G C T GAP
-   * A x x x x x x
-   * G x x x x x x
-   * C x x x x x x
-   * T x x x x x x
-   * GAP x x x x x x
+   * A x x x x x
+   * G x x x x x
+   * C x x x x x
+   * T x x x x x
+   * GAP x x x x x
    * @param lines
    * @return
    */

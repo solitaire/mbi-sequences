@@ -1,5 +1,8 @@
 package mbi.sequences
 
+import scala.io.Source
+import nw.structures.Alphabet
+
 /**
  * @author Marek Lewandowski <marek.lewandowski@icompass.pl>
  * @since 1/3/14
@@ -22,7 +25,17 @@ object App extends scala.App {
     }
   }
 
-  if(args.length < 6) println(usage)
+  def createSequenceFromLines(lines: Iterator[String]) = {
+    val HeaderOfSequence = """>.*$""".r
+    var seq = List[Alphabet.Value]()
+    for (line <- lines) line match {
+      case HeaderOfSequence() => ()
+      case _ => seq = seq ++ Alphabet(line)
+    }
+    seq
+  }
+
+  if (args.length < 6) println(usage)
   else {
     val optionsMap: Map[String, Any] = nextOption(Map.empty, args.toList)
     if (!(optionsMap.contains("-seq") && optionsMap("-seq").asInstanceOf[List[String]].size == 3)) println(
@@ -41,6 +54,14 @@ object App extends scala.App {
 
     println(optionsMap)
 
+    val sequences = {
+      for {
+        path <- optionsMap("-seq").asInstanceOf[List[String]]
+      } yield {
+        val lines: Iterator[String] = Source.fromFile(path).getLines()
+        createSequenceFromLines(lines)
+      }
+    }
   }
 
 }
