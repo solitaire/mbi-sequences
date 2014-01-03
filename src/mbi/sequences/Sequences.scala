@@ -2,6 +2,7 @@ package mbi.sequences
 
 import mbi.sequences.sequences.{MoveType, Moves, DNASeq}
 import nw.structures.{Alphabet, SimilarityMatrix}
+import scala.collection.mutable
 
 /**
  * @author Marek Lewandowski <marek.m.lewandowski@gmail.com>
@@ -34,17 +35,20 @@ object Sequences {
 
   def NeedlemanWunsch(s: DNASeq, t: DNASeq, u: DNASeq, sm: SimilarityMatrix): (DNASeq, DNASeq, DNASeq, Int) = {
 
+    var alignments: mutable.Map[(Int, Int, Int), (Int, Moves)] = mutable.Map()
+
     def getOrPut(i: Int, j: Int, k: Int, f: => () => (Int, Moves)): (Int, Moves) = {
 
-      def getFromMatrix(i: Int, j: Int, k: Int): Option[(Int, Moves)] = ???
+      def getFromMatrix(i: Int, j: Int, k: Int): Option[(Int, Moves)] = alignments.get((i, j, k))
 
-      def putToMatrix(i: Int, j: Int, k: Int, data: (Int, Moves)) = ???
+      def putToMatrix(i: Int, j: Int, k: Int, data: (Int, Moves)) = alignments += (((i, j, k), data))
 
       getFromMatrix(i, j, k) match {
         case Some(data) => data
         case None => {
           val f1: (Int, Moves) = f()
           putToMatrix(i, j, k, f1)
+          f1
         }
       }
     }
