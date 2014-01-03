@@ -68,4 +68,22 @@ class SequencesSuite extends FlatSpec with Matchers {
     println(s"evaluationCounter $evaluationCounter")
     assert(evaluationCounter != 3 + 3 + 3 + 3 + 3 + 3)
   }
+
+  "Formatting sequences" should "work" in {
+    import sequences._
+    val s1: DNASeq = "AG"
+    val s2: DNASeq = "CTAAG"
+    val s3: DNASeq = "AGTT"
+    val expected = ("---AG".toList, "CTAAG".toList, "AG-TT".toList)
+
+    val moves = (doMove, doMove, doMove) ::
+      (doMove, doMove, doMove) ::
+      (noMove, doMove, noMove) ::
+      (noMove, doMove, doMove) ::
+      (noMove, doMove, doMove) ::
+      Nil
+
+    val formatted = Sequences.formatSequences(s1, s2, s3, moves)
+    assert(formatted === expected)
+  }
 }

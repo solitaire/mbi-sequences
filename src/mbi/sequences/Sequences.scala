@@ -1,6 +1,6 @@
 package mbi.sequences
 
-import mbi.sequences.sequences.{Moves, SimilarityMatrix, DNASeq}
+import mbi.sequences.sequences.{MoveType, Moves, SimilarityMatrix, DNASeq}
 
 /**
  * @author Marek Lewandowski <marek.lewandowski@icompass.pl>
@@ -67,5 +67,14 @@ object Sequences {
     def e(s: Option[Char], t: Option[Char], u: Option[Char]): Int = ???
 
     ???
+  }
+
+  def formatSequences(s: DNASeq, t: DNASeq, u: DNASeq, m: Moves): (DNASeq, DNASeq, DNASeq) = {
+    def formatSeq(seq: DNASeq, f: MoveType => Boolean): DNASeq = {
+      m.map(f).map(v => if (v) None else Some('-')).foldRight((List[Char](), seq))((charOpt, listWithSeq) =>
+        if (charOpt.isDefined) (listWithSeq._1.:+(charOpt.get), listWithSeq._2)
+        else (listWithSeq._1.:+(listWithSeq._2.head), listWithSeq._2.tail))._1
+    }
+    (formatSeq(s, _._1), formatSeq(t, _._2), formatSeq(u, _._3))
   }
 }
