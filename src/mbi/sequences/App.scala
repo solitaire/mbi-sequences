@@ -5,7 +5,7 @@ import nw.structures.Alphabet
 import nw.io.SimilarityMatrixReader
 
 /**
- * @author Marek Lewandowski <marek.lewandowski@icompass.pl>
+ * @author Marek Lewandowski <marek.m.lewandowski@gmail.com>
  * @since 1/3/14
  */
 object App extends scala.App {

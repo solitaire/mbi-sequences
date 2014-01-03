@@ -4,7 +4,7 @@ import mbi.sequences.sequences.{MoveType, Moves, DNASeq}
 import nw.structures.{Alphabet, SimilarityMatrix}
 
 /**
- * @author Marek Lewandowski <marek.lewandowski@icompass.pl>
+ * @author Marek Lewandowski <marek.m.lewandowski@gmail.com>
  * @since 1/3/14
  */
 
@@ -82,7 +82,9 @@ object Sequences {
 
     def e(s: Option[Alphabet.Value], t: Option[Alphabet.Value], u: Option[Alphabet.Value]): Int = sm.get((s.getOrElse(Alphabet.GAP), t.getOrElse(Alphabet.GAP), u.getOrElse(Alphabet.GAP)))
 
-    ???
+    val f: (Int, Moves) = F(s.length - 1, t.length - 1, u.length - 1, List())
+    val formatted: (DNASeq, DNASeq, DNASeq) = formatSequences(s, t, u, f._2)
+    (formatted._1, formatted._2, formatted._3, f._1)
   }
 
   def formatSequences(s: DNASeq, t: DNASeq, u: DNASeq, m: Moves): (DNASeq, DNASeq, DNASeq) = {
