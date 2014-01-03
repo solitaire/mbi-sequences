@@ -9,7 +9,6 @@ import nw.io.SimilarityMatrixReader
  * @since 1/3/14
  */
 object App extends scala.App {
-  println("mbi.sequences application has run")
   val usage =
     """ Usage:
       | -seq <path to first sequence> <path to second sequence> <path to third sequence> -sm <path to similarity matrix>
