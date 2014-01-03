@@ -9,8 +9,7 @@ import nw.structures.{Alphabet, SimilarityMatrix}
  */
 
 package object sequences {
-  type DNASeq = Seq[Char]
-
+  type DNASeq = Seq[Alphabet.Value]
 
   /**
    * (doMove, doMove, doMove) means F(i-1, j-1, k-1) which means sequences are similar
@@ -33,7 +32,7 @@ class Sequences {
 
 object Sequences {
 
-  def NeedlemanWunsch(s: DNASeq, t: DNASeq, u: DNASeq, sm: SimilarityMatrix): Moves = {
+  def NeedlemanWunsch(s: DNASeq, t: DNASeq, u: DNASeq, sm: SimilarityMatrix): (DNASeq, DNASeq, DNASeq, Int) = {
 
     def getOrPut(i: Int, j: Int, k: Int, f: => () => (Int, Moves)): (Int, Moves) = {
 
@@ -81,14 +80,14 @@ object Sequences {
       (maxAndMove._1, maxAndMove._2 :: acc)
     }
 
-    def e(s: Option[Char], t: Option[Char], u: Option[Char]): Int = sm.get( (Alphabet(s), Alphabet(t), Alphabet(u)))
+    def e(s: Option[Alphabet.Value], t: Option[Alphabet.Value], u: Option[Alphabet.Value]): Int = sm.get((s.getOrElse(Alphabet.GAP), t.getOrElse(Alphabet.GAP), u.getOrElse(Alphabet.GAP)))
 
     ???
   }
 
   def formatSequences(s: DNASeq, t: DNASeq, u: DNASeq, m: Moves): (DNASeq, DNASeq, DNASeq) = {
     def formatSeq(seq: DNASeq, f: MoveType => Boolean): DNASeq = {
-      m.map(f).map(v => if (v) None else Some('-')).foldRight((List[Char](), seq))((charOpt, listWithSeq) =>
+      m.map(f).map(v => if (v) None else Some(Alphabet.GAP)).foldRight((List[Alphabet.Value](), seq))((charOpt, listWithSeq) =>
         if (charOpt.isDefined) (listWithSeq._1.:+(charOpt.get), listWithSeq._2)
         else (listWithSeq._1.:+(listWithSeq._2.head), listWithSeq._2.tail))._1
     }

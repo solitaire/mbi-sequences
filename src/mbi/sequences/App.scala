@@ -2,6 +2,7 @@ package mbi.sequences
 
 import scala.io.Source
 import nw.structures.Alphabet
+import nw.io.SimilarityMatrixReader
 
 /**
  * @author Marek Lewandowski <marek.lewandowski@icompass.pl>
@@ -35,33 +36,53 @@ object App extends scala.App {
     seq
   }
 
+  def validatePassedInOptions(optionsMap: Map[String, Any]) = {
+    if (!(optionsMap.contains("-seq") && optionsMap("-seq").asInstanceOf[List[String]].size == 3)) {
+      println(
+        """
+          |Wrong usage of -seq
+          |
+          |example: -seq sequence1 ../some/dir/seq2 data/seq3
+        """.stripMargin)
+      false
+    }
+    else if (!(optionsMap.contains("-sm") && optionsMap("-sm").asInstanceOf[String].size > 0)) {
+      println(
+        """
+          |Wrong usage of -sm
+          |
+          |example: -sm path/to/similarity-matrix
+        """.stripMargin)
+      false
+    }
+    true
+  }
+
   if (args.length < 6) println(usage)
   else {
     val optionsMap: Map[String, Any] = nextOption(Map.empty, args.toList)
-    if (!(optionsMap.contains("-seq") && optionsMap("-seq").asInstanceOf[List[String]].size == 3)) println(
-      """
-        |Wrong usage of -seq
-        |
-        |example: -seq sequence1 ../some/dir/seq2 data/seq3
-      """.stripMargin)
-
-    if (!(optionsMap.contains("-sm") && optionsMap("-sm").asInstanceOf[String].size > 0)) println(
-      """
-        |Wrong usage of -sm
-        |
-        |example: -sm path/to/similarity-matrix
-      """.stripMargin)
-
-    println(optionsMap)
-
-    val sequences = {
-      for {
-        path <- optionsMap("-seq").asInstanceOf[List[String]]
-      } yield {
-        val lines: Iterator[String] = Source.fromFile(path).getLines()
-        createSequenceFromLines(lines)
+    if (validatePassedInOptions(optionsMap)) {
+      val sequences = {
+        for {
+          path <- optionsMap("-seq").asInstanceOf[List[String]]
+        } yield {
+          val lines: Iterator[String] = Source.fromFile(path).getLines()
+          createSequenceFromLines(lines)
+        }
       }
+
+      val similarityMatrix = SimilarityMatrixReader.read(Source.fromFile(optionsMap("-sm").asInstanceOf[String]).getLines())
+
+      val (seq1, seq2, seq3, alignment) = Sequences.NeedlemanWunsch(sequences(0), sequences(1), sequences(2), similarityMatrix)
+
+      println(seq1.map(Alphabet.print).mkString)
+      println(seq2.map(Alphabet.print).mkString)
+      println(seq3.map(Alphabet.print).mkString)
+      println(s"Alignment: $alignment")
+
     }
+
+
   }
 
 }
