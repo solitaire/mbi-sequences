@@ -35,6 +35,23 @@ object Sequences {
 
   def NeedlemanWunsch(s: DNASeq, t: DNASeq, u: DNASeq, sm: SimilarityMatrix): Moves = {
 
+    def getOrPut(i: Int, j: Int, k: Int, f: => () => (Int, Moves)): (Int, Moves) = {
+
+      def getFromMatrix(i: Int, j: Int, k: Int): Option[(Int, Moves)] = ???
+
+      def putToMatrix(i: Int, j: Int, k: Int, data: (Int, Moves)) = ???
+
+      getFromMatrix(i, j, k) match {
+        case Some(data) => data
+        case None => {
+          val f1: (Int, Moves) = f()
+          putToMatrix(i, j, k, f1)
+        }
+      }
+    }
+
+
+
     /**
      * Head of the Moves is the move corresponding to F(I, J, K) - sequences length. Last element in moves is for F(0,0,0)
      * @param i
@@ -45,13 +62,13 @@ object Sequences {
      */
     def F(i: Int, j: Int, k: Int, acc: Moves): (Int, Moves) = {
       import sequences._
-      val f: (Int, Moves) = F(i - 1, j - 1, k - 1, acc)
-      val f1: (Int, Moves) = F(i - 1, j - 1, k, acc)
-      val f2: (Int, Moves) = F(i - 1, j, k - 1, acc)
-      val f3: (Int, Moves) = F(i, j - 1, k - 1, acc)
-      val f4: (Int, Moves) = F(i - 1, j, k, acc)
-      val f5: (Int, Moves) = F(i, j - 1, k, acc)
-      val f6: (Int, Moves) = F(i, j, k - 1, acc)
+      val f: (Int, Moves) = getOrPut(i - 1, j - 1, k - 1, () => F(i - 1, j - 1, k - 1, acc))
+      val f1: (Int, Moves) = getOrPut(i - 1, j - 1, k, () => F(i - 1, j - 1, k, acc))
+      val f2: (Int, Moves) = getOrPut(i - 1, j, k - 1, () => F(i - 1, j, k - 1, acc))
+      val f3: (Int, Moves) = getOrPut(i, j - 1, k - 1, () => F(i, j - 1, k - 1, acc))
+      val f4: (Int, Moves) = getOrPut(i - 1, j, k, () => F(i - 1, j, k, acc))
+      val f5: (Int, Moves) = getOrPut(i, j - 1, k, () => F(i, j - 1, k, acc))
+      val f6: (Int, Moves) = getOrPut(i, j, k - 1, () => F(i, j, k - 1, acc))
 
       val maxAndMove = ((f._1 + e(Some(s(i)), Some(t(j)), Some(u(k))), (doMove, doMove, doMove)) ::
         (f1._1 + e(Some(s(i)), Some(t(j)), None), (doMove, doMove, noMove)) ::
