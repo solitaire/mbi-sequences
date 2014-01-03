@@ -39,10 +39,7 @@ object Sequences {
 
     def getOrPut(i: Int, j: Int, k: Int, f: => () => (Int, Moves)): (Int, Moves) = {
 
-      def getFromMatrix(i: Int, j: Int, k: Int): Option[(Int, Moves)] = {
-        println((i,j,k))
-        alignments.get((i, j, k))
-      }
+      def getFromMatrix(i: Int, j: Int, k: Int): Option[(Int, Moves)] = alignments.get((i, j, k))
 
       def putToMatrix(i: Int, j: Int, k: Int, data: (Int, Moves)) = alignments += (((i, j, k), data))
       if(i == 0 || j == 0 || k == 0) {
