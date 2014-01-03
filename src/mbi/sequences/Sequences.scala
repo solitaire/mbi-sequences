@@ -34,16 +34,27 @@ class Sequences {
 object Sequences {
 
   def NeedlemanWunsch(s: DNASeq, t: DNASeq, u: DNASeq, sm: SimilarityMatrix): (DNASeq, DNASeq, DNASeq, Int) = {
-
+    import sequences._
     var alignments: mutable.Map[(Int, Int, Int), (Int, Moves)] = mutable.Map()
 
     def getOrPut(i: Int, j: Int, k: Int, f: => () => (Int, Moves)): (Int, Moves) = {
 
-      def getFromMatrix(i: Int, j: Int, k: Int): Option[(Int, Moves)] = alignments.get((i, j, k))
+      def getFromMatrix(i: Int, j: Int, k: Int): Option[(Int, Moves)] = {
+        println((i,j,k))
+        alignments.get((i, j, k))
+      }
 
       def putToMatrix(i: Int, j: Int, k: Int, data: (Int, Moves)) = alignments += (((i, j, k), data))
-
-      getFromMatrix(i, j, k) match {
+      if(i == 0 || j == 0 || k == 0) {
+        if(i == 0 && j == 0) (k * sm.gapCost, (noMove, noMove, doMove) :: Nil)
+        else if(i == 0 && k == 0) (j * sm.gapCost, (noMove, doMove, noMove) :: Nil)
+        else if(j == 0 && k == 0) (i * sm.gapCost, (doMove, noMove, noMove) :: Nil)
+        else if(i == 0) ( (j + k) * sm.gapCost, (noMove, doMove, doMove) :: Nil)
+        else if(j == 0) ( (i + k) * sm.gapCost, (doMove, noMove, doMove) :: Nil)
+        else if(k == 0) ( (i + j) * sm.gapCost, (doMove, doMove, noMove) :: Nil)
+        else throw new Error("unexpected")
+      }
+      else getFromMatrix(i, j, k) match {
         case Some(data) => data
         case None => {
           val f1: (Int, Moves) = f()
@@ -64,24 +75,27 @@ object Sequences {
      * @return
      */
     def F(i: Int, j: Int, k: Int, acc: Moves): (Int, Moves) = {
-      import sequences._
-      val f: (Int, Moves) = getOrPut(i - 1, j - 1, k - 1, () => F(i - 1, j - 1, k - 1, acc))
-      val f1: (Int, Moves) = getOrPut(i - 1, j - 1, k, () => F(i - 1, j - 1, k, acc))
-      val f2: (Int, Moves) = getOrPut(i - 1, j, k - 1, () => F(i - 1, j, k - 1, acc))
-      val f3: (Int, Moves) = getOrPut(i, j - 1, k - 1, () => F(i, j - 1, k - 1, acc))
-      val f4: (Int, Moves) = getOrPut(i - 1, j, k, () => F(i - 1, j, k, acc))
-      val f5: (Int, Moves) = getOrPut(i, j - 1, k, () => F(i, j - 1, k, acc))
-      val f6: (Int, Moves) = getOrPut(i, j, k - 1, () => F(i, j, k - 1, acc))
 
-      val maxAndMove = ((f._1 + e(Some(s(i)), Some(t(j)), Some(u(k))), (doMove, doMove, doMove)) ::
-        (f1._1 + e(Some(s(i)), Some(t(j)), None), (doMove, doMove, noMove)) ::
-        (f2._1 + e(Some(s(i)), None, Some(u(k))), (doMove, noMove, doMove)) ::
-        (f3._1 + e(None, Some(t(j)), Some(u(k))), (noMove, doMove, doMove)) ::
-        (f4._1 + e(Some(s(i)), None, None), (doMove, noMove, noMove)) ::
-        (f5._1 + e(None, Some(t(j)), None), (noMove, doMove, noMove)) ::
-        (f6._1 + e(None, None, Some(u(k))), (noMove, noMove, doMove)) :: Nil).reduce((t1, t2) => if (t1._1 > t2._1) t1 else t2)
+      if(i == 0 && j == 0 && k == 0) (0, acc)
+      else {
+        val f: (Int, Moves) = getOrPut(i - 1, j - 1, k - 1, () => F(i - 1, j - 1, k - 1, acc))
+        val f1: (Int, Moves) = getOrPut(i - 1, j - 1, k, () => F(i - 1, j - 1, k, acc))
+        val f2: (Int, Moves) = getOrPut(i - 1, j, k - 1, () => F(i - 1, j, k - 1, acc))
+        val f3: (Int, Moves) = getOrPut(i, j - 1, k - 1, () => F(i, j - 1, k - 1, acc))
+        val f4: (Int, Moves) = getOrPut(i - 1, j, k, () => F(i - 1, j, k, acc))
+        val f5: (Int, Moves) = getOrPut(i, j - 1, k, () => F(i, j - 1, k, acc))
+        val f6: (Int, Moves) = getOrPut(i, j, k - 1, () => F(i, j, k - 1, acc))
 
-      (maxAndMove._1, maxAndMove._2 :: acc)
+        val maxAndMove = ((f._1 + e(Some(s(i)), Some(t(j)), Some(u(k))), (doMove, doMove, doMove)) ::
+          (f1._1 + e(Some(s(i)), Some(t(j)), None), (doMove, doMove, noMove)) ::
+          (f2._1 + e(Some(s(i)), None, Some(u(k))), (doMove, noMove, doMove)) ::
+          (f3._1 + e(None, Some(t(j)), Some(u(k))), (noMove, doMove, doMove)) ::
+          (f4._1 + e(Some(s(i)), None, None), (doMove, noMove, noMove)) ::
+          (f5._1 + e(None, Some(t(j)), None), (noMove, doMove, noMove)) ::
+          (f6._1 + e(None, None, Some(u(k))), (noMove, noMove, doMove)) :: Nil).reduce((t1, t2) => if (t1._1 > t2._1) t1 else t2)
+
+        (maxAndMove._1, maxAndMove._2 :: acc)
+      }
     }
 
     def e(s: Option[Alphabet.Value], t: Option[Alphabet.Value], u: Option[Alphabet.Value]): Int = sm.get((s.getOrElse(Alphabet.GAP), t.getOrElse(Alphabet.GAP), u.getOrElse(Alphabet.GAP)))
