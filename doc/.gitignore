@@ -5,3 +5,5 @@
 *.synctex.gz
 doc.pdf
 doc.fdb_latexmk
+*.blg
+*.bbl
