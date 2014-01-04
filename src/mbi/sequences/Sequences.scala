@@ -135,8 +135,8 @@ object Sequences {
 
     def calculateE(s: DNASeq, t: DNASeq, u: DNASeq)(p: Position, pm: PerformMove): Int = {
       val si = if (pm.moveType._1) Some(s(p.i - 1)) else None
-      val tj = if (pm.moveType._2) Some(s(p.j - 1)) else None
-      val uk = if (pm.moveType._3) Some(s(p.k - 1)) else None
+      val tj = if (pm.moveType._2) Some(t(p.j - 1)) else None
+      val uk = if (pm.moveType._3) Some(u(p.k - 1)) else None
       e(si, tj, uk)(sm)
     }
 
