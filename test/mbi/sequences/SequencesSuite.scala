@@ -4,6 +4,7 @@ import org.scalatest.FlatSpec
 import org.scalatest.matchers.Matchers
 import nw.io.SimilarityMatrixReader
 import mbi.sequences.sequences.{DNASeq, Moves}
+import scala.collection.mutable
 
 /**
  * @author Marek Lewandowski <marek.m.lewandowski@gmail.com>
@@ -50,14 +51,14 @@ class SequencesSuite extends FlatSpec with Matchers {
 //
 //  }
 
-  def checkAlignments(s1: DNASeq, s2: DNASeq, s3: DNASeq)(it: scala.collection.mutable.Map[(Int,Int,Int), Int])(rec: scala.collection.mutable.Map[(Int, Int, Int), (Int, Moves)]) = {
+  def checkAlignments(s1: DNASeq, s2: DNASeq, s3: DNASeq)(it: scala.collection.mutable.Map[(Int,Int,Int), Int])(rec: scala.collection.mutable.Map[(Int, Int, Int), Int]) = {
     for {
       i <- 0 to s1.length
       j <- 0 to s2.length
       k <- 0 to s3.length
     } {
       if(it.contains((i,j,k)) && rec.contains((i,j,k))) {
-        assert(it((i,j,k)) === rec((i,j,k))._1, Some("Alignments matrix should be the same"))
+        assert(it((i,j,k)) === rec((i,j,k)), Some(s"Alignments matrix should be the same for key ($j, $j, $k)"))
       }
     }
   }
@@ -111,7 +112,9 @@ class SequencesSuite extends FlatSpec with Matchers {
       val seq = App.createSequenceFromLines(s.lines)
       val similarityMatrix = SimilarityMatrixReader.read(similarityMatrixStr.lines)
       val iterative = Sequences.iterativeNeedlemanWunschVersionTwo(seq, seq, seq, similarityMatrix)
+      val map: mutable.Map[(Int, Int, Int), Int] = iterative._3.map(t => ((t._1.i, t._1.j, t._1.k), t._2.alignment))
       val recursive = Sequences.recursiveNeedlemanWunsch(seq, seq, seq, similarityMatrix)
+      checkAlignments(seq, seq ,seq)(map)(recursive._3.map( t => (t._1, t._2._1)  ))
       assert(iterative._2.size === recursive._2.size, Some("there should be same number of moves"))
       assert(iterative._1 === recursive._1, Some("Best alignment should be the same"))
       assert(iterative._2 === recursive._2, Some("Moves should be the same"))
@@ -138,7 +141,8 @@ class SequencesSuite extends FlatSpec with Matchers {
     println("RECURSIVE")
     val recursive = Sequences.recursiveNeedlemanWunsch(s1, s2, s3, similarityMatrix)
 
-//    checkAlignments(s1,s2,s3)(iterative._3)(recursive._3)
+    val map: mutable.Map[(Int, Int, Int), Int] = iterative._3.map(t => ((t._1.i, t._1.j, t._1.k), t._2.alignment))
+    checkAlignments(s1, s2, s3)(map)(recursive._3.map( t => (t._1, t._2._1)  ))
     println("RECURSIVE MOVES print")
     print(recursive._2)
     println("Iterative MOVES print")

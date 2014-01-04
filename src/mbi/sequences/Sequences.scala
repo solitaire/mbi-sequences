@@ -34,7 +34,7 @@ object Sequences {
       val formatted: (DNASeq, DNASeq, DNASeq) = formatSequences(s, t, u, results._2)
       (formatted._1, formatted._2, formatted._3, results._1)
     } else {
-      val results: (Int, sequences.Moves) = iterativeNeedlemanWunschVersionTwo(s, t, u, sm)
+      val results = iterativeNeedlemanWunschVersionTwo(s, t, u, sm)
       val formatted: (DNASeq, DNASeq, DNASeq) = formatSequences(s, t, u, results._2)
       (formatted._1, formatted._2, formatted._3, results._1)
     }
@@ -117,11 +117,14 @@ object Sequences {
     (f._1, f._2, alignments)
   }
 
+  case class Position(i: Int, j: Int, k: Int)
+
+  case class BestAlignmentWithMoveType(alignment: Int, m: Option[MoveType])
+
+
   protected[sequences] def iterativeNeedlemanWunschVersionTwo(s: DNASeq, t: DNASeq, u: DNASeq, sm: SimilarityMatrix) = {
 
-    case class Position(i: Int, j: Int, k: Int)
 
-    case class BestAlignmentWithMoveType(alignment: Int, m: Option[MoveType])
 
     case class PerformMove(di: Int, dj: Int, dk: Int) {
       private def getMove(i: Int) = if (i == 1) doMove else noMove
@@ -192,7 +195,7 @@ object Sequences {
       position = moveTypeToPerformMove(move).performOn(position)
       nextBestAlignment = alignments(position)
     }
-    (alignments(Position(s.length, t.length, u.length)).alignment, moves)
+    (alignments(Position(s.length, t.length, u.length)).alignment, moves, alignments)
   }
 
   protected[sequences] def iterativeNeedlemanWunsch(s: DNASeq, t: DNASeq, u: DNASeq, sm: SimilarityMatrix) = {
