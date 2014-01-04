@@ -11,8 +11,9 @@ import nw.io.SimilarityMatrixReader
 object App extends scala.App {
   val usage =
     """ Usage:
-      | -seq <path to first sequence> <path to second sequence> <path to third sequence> -sm <path to similarity matrix>
+      | -seq <path to first sequence> <path to second sequence> <path to third sequence> -sm <path to similarity matrix> [-r]
       |
+      | -r use recursive algorithm
       | Example
       | -seq data/s1 data/s2 data/s3 -sm data/similarity-matrix >> results
     """.stripMargin
@@ -21,6 +22,7 @@ object App extends scala.App {
     remainingArgs match {
       case "-seq" :: p1 :: p2 :: p3 :: tail => nextOption(optionsMap ++ Map("-seq" -> List(p1, p2, p3)), tail)
       case "-sm" :: p :: tail => nextOption(optionsMap ++ Map("-sm" -> p), tail)
+      case "-r" :: tail => nextOption(optionsMap ++ Map("-r" -> true), tail)
       case rest => optionsMap
     }
   }
@@ -72,7 +74,10 @@ object App extends scala.App {
 
       val similarityMatrix = SimilarityMatrixReader.read(Source.fromFile(optionsMap("-sm").asInstanceOf[String]).getLines())
 
-      val (seq1, seq2, seq3, alignment) = Sequences.recursiveNeedlemanWunsch(sequences(0), sequences(1), sequences(2), similarityMatrix)
+      val (seq1, seq2, seq3, alignment) = if (optionsMap.contains("-r"))
+        Sequences.recursiveNeedlemanWunsch(sequences(0), sequences(1), sequences(2), similarityMatrix)
+      else Sequences.iterativeNeedlemanWunsch(sequences(0), sequences(1), sequences(2), similarityMatrix)
+
 
       println(seq1.map(Alphabet.print).mkString)
       println(seq2.map(Alphabet.print).mkString)

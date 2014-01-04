@@ -45,10 +45,10 @@ object Sequences {
     else throw new Error("unexpected")
   }
 
-  def recursiveNeedlemanWunsch(s: DNASeq, t: DNASeq, u: DNASeq, sm: SimilarityMatrix): (DNASeq, DNASeq, DNASeq, Int) = {
+  def recursiveNeedlemanWunschInternal(s: DNASeq, t: DNASeq, u: DNASeq, sm: SimilarityMatrix) = {
     implicit val smm = sm
     var alignments: mutable.Map[(Int, Int, Int), (Int, Moves)] = mutable.Map()
-
+    println("recursiveNeedlemanWunsch")
     def getOrPut(i: Int, j: Int, k: Int, f: => () => (Int, Moves)): (Int, Moves) = {
 
       def getFromMatrix(i: Int, j: Int, k: Int): Option[(Int, Moves)] = alignments.get((i, j, k))
@@ -104,13 +104,25 @@ object Sequences {
 
 
     val f: (Int, Moves) = F(s.length - 1, t.length - 1, u.length - 1, List())
-    val formatted: (DNASeq, DNASeq, DNASeq) = formatSequences(s, t, u, f._2)
-    (formatted._1, formatted._2, formatted._3, f._1)
+    f
+  }
+
+  def recursiveNeedlemanWunsch(s: DNASeq, t: DNASeq, u: DNASeq, sm: SimilarityMatrix): (DNASeq, DNASeq, DNASeq, Int) = {
+    val results: (Int, sequences.Moves) = recursiveNeedlemanWunschInternal(s, t, u, sm)
+    val formatted: (DNASeq, DNASeq, DNASeq) = formatSequences(s, t, u, results._2)
+    (formatted._1, formatted._2, formatted._3, results._1)
+  }
+
+  def iterativeNeedlemanWunsch(s: DNASeq, t: DNASeq, u: DNASeq, sm: SimilarityMatrix): (DNASeq, DNASeq, DNASeq, Int) = {
+    val results: (Int, sequences.Moves) = iterativeNeedlemanWunschInternal(s, t, u, sm)
+    val formatted: (DNASeq, DNASeq, DNASeq) = formatSequences(s, t, u, results._2)
+    (formatted._1, formatted._2, formatted._3, results._1)
   }
 
   def e(s: Option[Alphabet.Value], t: Option[Alphabet.Value], u: Option[Alphabet.Value])(implicit sm: SimilarityMatrix): Int = sm.get((s.getOrElse(Alphabet.GAP), t.getOrElse(Alphabet.GAP), u.getOrElse(Alphabet.GAP)))
 
-  def iterativeNeedlemanWunsch(s: DNASeq, t: DNASeq, u: DNASeq, sm: SimilarityMatrix): (DNASeq, DNASeq, DNASeq, Int) = {
+  def iterativeNeedlemanWunschInternal(s: DNASeq, t: DNASeq, u: DNASeq, sm: SimilarityMatrix) = {
+    println(s"s: ${s.size}, t: ${t.size}, u: ${u.size}}")
     var alignments: mutable.Map[(Int, Int, Int), Int] = mutable.Map()
     implicit val smm = sm
 
@@ -119,9 +131,8 @@ object Sequences {
       if (i == 0 || j == 0 || k == 0) {
         marginalCosts(i, j, k, sm)._1
       }
-      else if(!alignments.contains(i,j,k)) {
-        println(s"does not constain ($i, $j, $k)")
-        0
+      else if (!alignments.contains(i, j, k)) {
+        throw new Error(s"alignments do not contain ($i, $j, $k)")
       }
       else alignments(i, j, k)
     }
@@ -131,49 +142,85 @@ object Sequences {
       if (i == 0 || j == 0 || k == 0) {
         marginalCosts(i, j, k, sm)._1
       }
-      else {
-        val costs = (get(i - 1, j - 1, k - 1) + e(Some(s(i)), Some(t(j)), Some(u(k)))) ::
-          (get(i - 1, j - 1, k) + e(Some(s(i)), Some(t(j)), None)) ::
-          (get(i - 1, j, k - 1) + e(Some(s(i)), None, Some(u(k)))) ::
-          (get(i, j - 1, k - 1) + e(None, Some(t(j)), Some(u(k)))) ::
-          (get(i - 1, j, k) + e(Some(s(i)), None, None)) ::
-          (get(i, j - 1, k) + e(None, Some(t(j)), None)) ::
-          (get(i, j, k - 1) + e(None, None, Some(u(k)))) :: Nil
-        costs.reduce(_ max _)
+      else alignments.get((i, j, k)) match {
+        case Some(cost) => cost
+        case None => {
+          val costs = (get(i - 1, j - 1, k - 1) +
+            e(Some(s(i - 1)), Some(t(j - 1)), Some(u(k - 1)))) ::
+            (get(i - 1, j - 1, k) +
+              e(Some(s(i - 1)), Some(t(j - 1)), None)) ::
+            (get(i - 1, j, k - 1) +
+              e(Some(s(i - 1)), None, Some(u(k - 1)))) ::
+            (get(i, j - 1, k - 1) +
+              e(None, Some(t(j - 1)), Some(u(k - 1)))) ::
+            (get(i - 1, j, k) +
+              e(Some(s(i - 1)), None, None)) ::
+            (get(i, j - 1, k) +
+              e(None, Some(t(j - 1)), None)) ::
+            (get(i, j, k - 1) +
+              e(None, None, Some(u(k - 1)))) :: Nil
+          val max: Int = costs.reduce(_ max _)
+          alignments += (((i, j, k), max))
+          max
+        }
       }
+
     }
 
-    var moves: Moves = List()
     for {
-      i <- 0 until s.length
-      j <- 0 until t.length
-      k <- 0 until u.length
+      i <- 0 to s.length
+      j <- 0 to t.length
+      k <- 0 to u.length
     } {
-      val f = F(i + 1, j + 1, k + 1)
-      alignments += (((i + 1, j + 1, k + 1), f))
-      val f1 = F(i + 1, j + 1, k)
-      alignments += (((i + 1, j + 1, k), f1))
-      val f2 = F(i + 1, j, k + 1)
-      alignments += (((i + 1, j, k + 1), f2))
-      val f3 = F(i, j + 1, k + 1)
-      alignments += (((i, j + 1, k + 1), f3))
-      val f4 = F(i + 1, j, k)
-      alignments += (((i + 1, j, k), f4))
-      val f5 = F(i, j + 1, k)
-      alignments += (((i, j + 1, k), f5))
-      val f6 = F(i, j, k + 1)
-      alignments += (((i, j, k + 1), f6))
+      F(i, j, k)
+    }
 
-      val costsWithMoves = (f, (doMove, doMove, doMove)) ::(f1, (doMove, doMove, noMove)) ::(f2, (doMove, noMove, doMove)) ::
-        (f3, (noMove, doMove, doMove)) ::(f4, (doMove, noMove, noMove)) ::(f5, (noMove, doMove, noMove)) ::(f6, (noMove, noMove, doMove)) :: Nil
+    var i = 1
+    var j = 1
+    var k = 1
+    var moves: Moves = List()
+    while (!(i == s.length && j == t.length && k == u.length)) {
+
+      var costsWithMoves: mutable.MutableList[(Int, (sequences.Move, sequences.Move, sequences.Move))] = mutable.MutableList()
+
+      if (i + 1 <= s.length && j + 1 <= t.length && k + 1 <= u.length) {
+        val f1 = (F(i + 1, j + 1, k + 1), (doMove, doMove, doMove))
+        costsWithMoves += f1
+      }
+      if (i + 1 <= s.length && j + 1 <= t.length) {
+        val f2 = (F(i + 1, j + 1, k), (doMove, doMove, noMove))
+        costsWithMoves += f2
+      }
+      if (i + 1 <= s.length && k + 1 <= u.length) {
+        val f3 = (F(i + 1, j, k + 1), (doMove, noMove, doMove))
+        costsWithMoves += f3
+      }
+      if (j + 1 <= t.length && k + 1 <= u.length) {
+        val f4 = (F(i, j + 1, k + 1), (noMove, doMove, doMove))
+        costsWithMoves += f4
+      }
+      if (i + 1 <= s.length) {
+        val f5 = (F(i + 1, j, k), (doMove, noMove, noMove))
+        costsWithMoves += f5
+      }
+      if (j + 1 <= t.length) {
+        val f6 = (F(i, j + 1, k), (noMove, doMove, noMove))
+        costsWithMoves += f6
+      }
+      if (k + 1 <= u.length) {
+        val f7 = (F(i, j, k + 1), (noMove, noMove, doMove))
+        costsWithMoves += f7
+      }
 
       val bestCostWithMove: (Int, (sequences.Move, sequences.Move, sequences.Move)) = costsWithMoves.reduce((fm1, fm2) => if (fm1._1 > fm2._1) fm1 else fm2)
 
-      moves = bestCostWithMove._2 :: moves
+      val move: (sequences.Move, sequences.Move, sequences.Move) = bestCostWithMove._2
+      moves = move :: moves
+      if (move._1) i = i + 1
+      if (move._2) j = j + 1
+      if (move._3) k = k + 1
     }
-    val formatted: (DNASeq, DNASeq, DNASeq) = formatSequences(s, t, u, moves)
-    (formatted._1, formatted._2, formatted._3, alignments((s.length, t.length, u.length)))
-
+    (get(s.length, t.length, u.length), moves)
   }
 
   def formatSequences(s: DNASeq, t: DNASeq, u: DNASeq, m: Moves): (DNASeq, DNASeq, DNASeq) = {
