@@ -44,7 +44,7 @@ class SequencesSuite extends FlatSpec with Matchers {
     val s2 = App.createSequenceFromLines(s2f.lines)
     val s3 = App.createSequenceFromLines(s3f.lines)
     val similarityMatrix = SimilarityMatrixReader.read(similarityMatrixStr.lines)
-    val iterative = Sequences.iterativeNeedlemanWunschVersionTwo(s1, s2, s3, similarityMatrix)
+    val iterative = Sequences.iterativeNeedlemanWunsch(s1, s2, s3, similarityMatrix)
     val recursive = Sequences.recursiveNeedlemanWunsch(s1, s2, s3, similarityMatrix)
 
     val map: mutable.Map[(Int, Int, Int), Int] = iterative._3.map(t => ((t._1.i, t._1.j, t._1.k), t._2.alignment))
@@ -60,7 +60,7 @@ class SequencesSuite extends FlatSpec with Matchers {
     sameSeqs.foreach(s => {
       val seq = App.createSequenceFromLines(s.lines)
       val similarityMatrix = SimilarityMatrixReader.read(similarityMatrixStr.lines)
-      val iterative = Sequences.iterativeNeedlemanWunschVersionTwo(seq, seq, seq, similarityMatrix)
+      val iterative = Sequences.iterativeNeedlemanWunsch(seq, seq, seq, similarityMatrix)
       val map: mutable.Map[(Int, Int, Int), Int] = iterative._3.map(t => ((t._1.i, t._1.j, t._1.k), t._2.alignment))
       val recursive = Sequences.recursiveNeedlemanWunsch(seq, seq, seq, similarityMatrix)
       checkAlignments(seq, seq ,seq)(map)(recursive._3.map( t => (t._1, t._2._1)  ))

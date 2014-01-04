@@ -34,7 +34,7 @@ object Sequences {
       val formatted: (DNASeq, DNASeq, DNASeq) = formatSequences(s, t, u, results._2)
       (formatted._1, formatted._2, formatted._3, results._1)
     } else {
-      val results = iterativeNeedlemanWunschVersionTwo(s, t, u, sm)
+      val results: (Int, List[sequences.MoveType], mutable.Map[Position, BestAlignmentWithMoveType]) = iterativeNeedlemanWunsch(s, t, u, sm)
       val formatted: (DNASeq, DNASeq, DNASeq) = formatSequences(s, t, u, results._2)
       (formatted._1, formatted._2, formatted._3, results._1)
     }
@@ -112,7 +112,7 @@ object Sequences {
 
   case class BestAlignmentWithMoveType(alignment: Int, m: Option[MoveType])
 
-  protected[sequences] def iterativeNeedlemanWunschVersionTwo(s: DNASeq, t: DNASeq, u: DNASeq, sm: SimilarityMatrix) = {
+  protected[sequences] def iterativeNeedlemanWunsch(s: DNASeq, t: DNASeq, u: DNASeq, sm: SimilarityMatrix) = {
 
 
     case class PerformMove(di: Int, dj: Int, dk: Int) {
@@ -175,6 +175,7 @@ object Sequences {
     } {
       F(Position(i, j, k))
     }
+    
     var position: Position = Position(s.length, t.length, u.length)
     var moves: Moves = List()
     var nextBestAlignment = alignments(position)
@@ -187,126 +188,6 @@ object Sequences {
     (alignments(Position(s.length, t.length, u.length)).alignment, moves.reverse, alignments)
   }
 
-  protected[sequences] def iterativeNeedlemanWunsch(s: DNASeq, t: DNASeq, u: DNASeq, sm: SimilarityMatrix) = {
-    var alignments: mutable.Map[(Int, Int, Int), Int] = mutable.Map()
-    implicit val smm = sm
-
-    def get(i: Int, j: Int, k: Int) = {
-
-      if (i == 0 || j == 0 || k == 0) {
-        marginalCosts(i, j, k, sm)._1
-      }
-      else if (!alignments.contains(i, j, k)) {
-        throw new Error(s"alignments do not contain ($i, $j, $k)")
-      }
-      else alignments(i, j, k)
-    }
-
-    def F(i: Int, j: Int, k: Int) = {
-      if (i == 0 && j == 0 && k == 0) 0
-      else if (i == 0 || j == 0 || k == 0) {
-        marginalCosts(i, j, k, sm)._1
-      }
-      else
-        alignments.get((i, j, k)) match {
-          case Some(cost) => cost
-          case None => {
-            val costs = (get(i - 1, j - 1, k - 1) +
-              e(Some(s(i - 1)), Some(t(j - 1)), Some(u(k - 1)))) ::
-              (get(i - 1, j - 1, k) +
-                e(Some(s(i - 1)), Some(t(j - 1)), None)) ::
-              (get(i - 1, j, k - 1) +
-                e(Some(s(i - 1)), None, Some(u(k - 1)))) ::
-              (get(i, j - 1, k - 1) +
-                e(None, Some(t(j - 1)), Some(u(k - 1)))) ::
-              (get(i - 1, j, k) +
-                e(Some(s(i - 1)), None, None)) ::
-              (get(i, j - 1, k) +
-                e(None, Some(t(j - 1)), None)) ::
-              (get(i, j, k - 1) +
-                e(None, None, Some(u(k - 1)))) :: Nil
-            val max: Int = costs.reduce(_ max _)
-            alignments += (((i, j, k), max))
-            max
-          }
-        }
-    }
-
-    for {
-      i <- 0 to s.length
-      j <- 0 to t.length
-      k <- 0 to u.length
-    } {
-      F(i, j, k)
-    }
-
-
-    var i = s.length
-    var j = t.length
-    var k = u.length
-    var moves: mutable.MutableList[MoveType] = mutable.MutableList()
-    // Head move is for (0,0,0), last is for (s.length, t.length, u.length)
-    while (i > 0 && j > 0 && k > 0) {
-
-      val head = F(i, j, k)
-      val f1 = (F(i - 1, j - 1, k - 1), (doMove, doMove, doMove))
-      val f2 = (F(i - 1, j - 1, k), (doMove, doMove, noMove))
-      val f3 = (F(i - 1, j, k - 1), (doMove, noMove, doMove))
-      val f4 = (F(i, j - 1, k - 1), (noMove, doMove, doMove))
-      val f5 = (F(i - 1, j, k), (doMove, noMove, noMove))
-      val f6 = (F(i, j - 1, k), (noMove, doMove, noMove))
-      val f7 = (F(i, j, k - 1), (noMove, noMove, doMove))
-
-      if (head == f1._1 + e(Some(s(i - 1)), Some(t(j - 1)), Some(u(k - 1)))) {
-        i = i - 1
-        j = j - 1
-        k = k - 1
-        moves += f1._2
-      } else if (head == f2._1 + e(Some(s(i-1)), Some(t(j-1)), None)) {
-        i = i - 1
-        j = j - 1
-        moves += f2._2
-      } else if (head == f3._1 + e(Some(s(i-1)), None, Some(u(k-1)))) {
-        i  = i - 1
-        k = k - 1
-        moves += f3._2
-      } else if (head == f4._1 + e(None, Some(t(j-1)), Some(u(k-1)))) {
-        j = j - 1
-        k = k - 1
-        moves += f4._2
-      } else if (head == f5._1 + e(Some(s(i-1)), None, None)) {
-        i = i - 1
-        moves += f5._2
-      } else if (head == f6._1 + e(None, Some(t(j-1)), None)) {
-        j = j - 1
-        moves += f6._2
-      } else if (head == f7._1 + e(None, None, Some(u(k-1)))) {
-        k = k - 1
-        moves += f7._2
-      }
-    }
-
-    while (i > 0) {
-      i = i - 1
-      val move = (doMove, noMove, noMove)
-      moves += move
-    }
-
-    while (j > 0) {
-      j = j - 1
-      val move = (noMove, doMove, noMove)
-      moves += move
-    }
-
-    while (k > 0) {
-      k = k - 1
-      val move = (noMove, noMove, doMove)
-      moves += move
-    }
-
-
-    (get(s.length, t.length, u.length), moves.toList, alignments)
-  }
 
   protected[sequences] def formatSequences(s: DNASeq, t: DNASeq, u: DNASeq, m: Moves): (DNASeq, DNASeq, DNASeq) = {
     def formatSeq(seq: DNASeq, f: MoveType => Boolean): DNASeq = {
