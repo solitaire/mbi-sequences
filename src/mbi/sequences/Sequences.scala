@@ -20,21 +20,20 @@ package object sequences {
   val doMove: Move = true
   val noMove: Move = false
   type MoveType = (Boolean, Boolean, Boolean)
-
   type Moves = List[MoveType]
-
-}
-
-class Sequences {
-
-
 }
 
 object Sequences {
 
   import sequences._
 
-  def marginalCosts(i: Int, j: Int, k: Int, sm: SimilarityMatrix) = {
+  def NeedlemanWunsch(s: DNASeq, t: DNASeq, u: DNASeq, sm: SimilarityMatrix, recursive: Boolean): (DNASeq, DNASeq, DNASeq, Int) = {
+    val results = if (recursive) recursiveNeedlemanWunsch(s, t, u, sm) else iterativeNeedlemanWunsch(s, t, u, sm)
+    val formatted: (DNASeq, DNASeq, DNASeq) = formatSequences(s, t, u, results._2)
+    (formatted._1, formatted._2, formatted._3, results._1)
+  }
+
+  private def marginalCosts(i: Int, j: Int, k: Int, sm: SimilarityMatrix) = {
     if (i == 0 && j == 0 && k == 0) (0, Nil)
     else if (i == 0 && j == 0) (k * sm.gapCost, (noMove, noMove, doMove) :: Nil)
     else if (i == 0 && k == 0) (j * sm.gapCost, (noMove, doMove, noMove) :: Nil)
@@ -45,7 +44,9 @@ object Sequences {
     else throw new Error("unexpected")
   }
 
-  def recursiveNeedlemanWunschInternal(s: DNASeq, t: DNASeq, u: DNASeq, sm: SimilarityMatrix) = {
+  private def e(s: Option[Alphabet.Value], t: Option[Alphabet.Value], u: Option[Alphabet.Value])(implicit sm: SimilarityMatrix): Int = sm.get((s.getOrElse(Alphabet.GAP), t.getOrElse(Alphabet.GAP), u.getOrElse(Alphabet.GAP)))
+
+  protected def recursiveNeedlemanWunsch(s: DNASeq, t: DNASeq, u: DNASeq, sm: SimilarityMatrix) = {
     implicit val smm = sm
     var alignments: mutable.Map[(Int, Int, Int), (Int, Moves)] = mutable.Map()
     println("recursiveNeedlemanWunsch")
@@ -66,8 +67,6 @@ object Sequences {
         }
       }
     }
-
-
 
     /**
      * Head of the Moves is the move corresponding to F(I, J, K) - sequences length. Last element in moves is for F(0,0,0)
@@ -100,28 +99,10 @@ object Sequences {
         (maxAndMove._2, maxAndMove._3 :: maxAndMove._1._2)
       }
     }
-
-
-
-    val f: (Int, Moves) = F(s.length - 1, t.length - 1, u.length - 1, List())
-    f
+    F(s.length - 1, t.length - 1, u.length - 1, List())
   }
 
-  def recursiveNeedlemanWunsch(s: DNASeq, t: DNASeq, u: DNASeq, sm: SimilarityMatrix): (DNASeq, DNASeq, DNASeq, Int) = {
-    val results: (Int, sequences.Moves) = recursiveNeedlemanWunschInternal(s, t, u, sm)
-    val formatted: (DNASeq, DNASeq, DNASeq) = formatSequences(s, t, u, results._2)
-    (formatted._1, formatted._2, formatted._3, results._1)
-  }
-
-  def iterativeNeedlemanWunsch(s: DNASeq, t: DNASeq, u: DNASeq, sm: SimilarityMatrix): (DNASeq, DNASeq, DNASeq, Int) = {
-    val results: (Int, sequences.Moves) = iterativeNeedlemanWunschInternal(s, t, u, sm)
-    val formatted: (DNASeq, DNASeq, DNASeq) = formatSequences(s, t, u, results._2)
-    (formatted._1, formatted._2, formatted._3, results._1)
-  }
-
-  def e(s: Option[Alphabet.Value], t: Option[Alphabet.Value], u: Option[Alphabet.Value])(implicit sm: SimilarityMatrix): Int = sm.get((s.getOrElse(Alphabet.GAP), t.getOrElse(Alphabet.GAP), u.getOrElse(Alphabet.GAP)))
-
-  def iterativeNeedlemanWunschInternal(s: DNASeq, t: DNASeq, u: DNASeq, sm: SimilarityMatrix) = {
+  protected def iterativeNeedlemanWunsch(s: DNASeq, t: DNASeq, u: DNASeq, sm: SimilarityMatrix) = {
     println(s"s: ${s.size}, t: ${t.size}, u: ${u.size}}")
     var alignments: mutable.Map[(Int, Int, Int), Int] = mutable.Map()
     implicit val smm = sm
@@ -164,7 +145,6 @@ object Sequences {
           max
         }
       }
-
     }
 
     for {
@@ -223,7 +203,7 @@ object Sequences {
     (get(s.length, t.length, u.length), moves)
   }
 
-  def formatSequences(s: DNASeq, t: DNASeq, u: DNASeq, m: Moves): (DNASeq, DNASeq, DNASeq) = {
+  protected def formatSequences(s: DNASeq, t: DNASeq, u: DNASeq, m: Moves): (DNASeq, DNASeq, DNASeq) = {
     def formatSeq(seq: DNASeq, f: MoveType => Boolean): DNASeq = {
       m.map(f).map(v => if (v) None else Some(Alphabet.GAP)).foldRight((List[Alphabet.Value](), seq))((charOpt, listWithSeq) =>
         if (charOpt.isDefined) (listWithSeq._1.:+(charOpt.get), listWithSeq._2)

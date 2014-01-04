@@ -74,9 +74,7 @@ object App extends scala.App {
 
       val similarityMatrix = SimilarityMatrixReader.read(Source.fromFile(optionsMap("-sm").asInstanceOf[String]).getLines())
 
-      val (seq1, seq2, seq3, alignment) = if (optionsMap.contains("-r"))
-        Sequences.recursiveNeedlemanWunsch(sequences(0), sequences(1), sequences(2), similarityMatrix)
-      else Sequences.iterativeNeedlemanWunsch(sequences(0), sequences(1), sequences(2), similarityMatrix)
+      val (seq1, seq2, seq3, alignment) = Sequences.NeedlemanWunsch(sequences(0), sequences(1), sequences(2), similarityMatrix, optionsMap.contains("-r"))
 
 
       println(seq1.map(Alphabet.print).mkString)
