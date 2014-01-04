@@ -49,7 +49,6 @@ object Sequences {
   protected def recursiveNeedlemanWunsch(s: DNASeq, t: DNASeq, u: DNASeq, sm: SimilarityMatrix) = {
     implicit val smm = sm
     var alignments: mutable.Map[(Int, Int, Int), (Int, Moves)] = mutable.Map()
-    println("recursiveNeedlemanWunsch")
     def getOrPut(i: Int, j: Int, k: Int, f: => () => (Int, Moves)): (Int, Moves) = {
 
       def getFromMatrix(i: Int, j: Int, k: Int): Option[(Int, Moves)] = alignments.get((i, j, k))
@@ -103,7 +102,6 @@ object Sequences {
   }
 
   protected def iterativeNeedlemanWunsch(s: DNASeq, t: DNASeq, u: DNASeq, sm: SimilarityMatrix) = {
-    println(s"s: ${s.size}, t: ${t.size}, u: ${u.size}}")
     var alignments: mutable.Map[(Int, Int, Int), Int] = mutable.Map()
     implicit val smm = sm
 
