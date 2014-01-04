@@ -153,9 +153,9 @@ object Sequences {
       F(i, j, k)
     }
 
-    var i = 1
-    var j = 1
-    var k = 1
+    var i = 0
+    var j = 0
+    var k = 0
     var moves: Moves = List()
     while (!(i == s.length && j == t.length && k == u.length)) {
 
