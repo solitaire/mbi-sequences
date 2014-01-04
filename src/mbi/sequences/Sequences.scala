@@ -248,100 +248,72 @@ object Sequences {
       F(i, j, k)
     }
 
-    val (recursiveCost, recursiveMoves, recursiveAlignment): (Int, sequences.Moves, mutable.Map[(Int, Int, Int), (Int, sequences.Moves)]) = recursiveNeedlemanWunsch(s, t, u, sm)
 
-    var i = 0
-    var j = 0
-    var k = 0
+    var i = s.length
+    var j = t.length
+    var k = u.length
+    var moves: mutable.MutableList[MoveType] = mutable.MutableList()
     // Head move is for (0,0,0), last is for (s.length, t.length, u.length)
-    var moves: Moves = List()
-    var totalCost = 0
-    while (!(i == s.length && j == t.length && k == u.length)) {
+    while (i > 0 && j > 0 && k > 0) {
 
-      var costsWithMoves: mutable.MutableList[(Int, (sequences.Move, sequences.Move, sequences.Move))] = mutable.MutableList()
+      val head = F(i, j, k)
+      val f1 = (F(i - 1, j - 1, k - 1), (doMove, doMove, doMove))
+      val f2 = (F(i - 1, j - 1, k), (doMove, doMove, noMove))
+      val f3 = (F(i - 1, j, k - 1), (doMove, noMove, doMove))
+      val f4 = (F(i, j - 1, k - 1), (noMove, doMove, doMove))
+      val f5 = (F(i - 1, j, k), (doMove, noMove, noMove))
+      val f6 = (F(i, j - 1, k), (noMove, doMove, noMove))
+      val f7 = (F(i, j, k - 1), (noMove, noMove, doMove))
 
-      if (i + 1 <= s.length && j + 1 <= t.length && k + 1 <= u.length) {
-        val f1 = (F(i + 1, j + 1, k + 1), (doMove, doMove, doMove))
-        costsWithMoves += f1
-
-        assert(recursiveAlignment((i + 1, j + 1, k + 1))._1 == f1._1)
-
+      if (head == f1._1 + e(Some(s(i - 1)), Some(t(j - 1)), Some(u(k - 1)))) {
+        i = i - 1
+        j = j - 1
+        k = k - 1
+        moves += f1._2
+      } else if (head == f2._1 + e(Some(s(i-1)), Some(t(j-1)), None)) {
+        i = i - 1
+        j = j - 1
+        moves += f2._2
+      } else if (head == f3._1 + e(Some(s(i-1)), None, Some(u(k-1)))) {
+        i  = i - 1
+        k = k - 1
+        moves += f3._2
+      } else if (head == f4._1 + e(None, Some(t(j-1)), Some(u(k-1)))) {
+        j = j - 1
+        k = k - 1
+        moves += f4._2
+      } else if (head == f5._1 + e(Some(s(i-1)), None, None)) {
+        i = i - 1
+        moves += f5._2
+      } else if (head == f6._1 + e(None, Some(t(j-1)), None)) {
+        j = j - 1
+        moves += f6._2
+      } else if (head == f7._1 + e(None, None, Some(u(k-1)))) {
+        k = k - 1
+        moves += f7._2
       }
-      if (i + 1 <= s.length && j + 1 <= t.length) {
-
-
-        val f2 = (F(i + 1, j + 1, k), (doMove, doMove, noMove))
-        costsWithMoves += f2
-
-        assert(recursiveAlignment((i + 1, j + 1, k))._1 == f2._1)
-
-      }
-      if (i + 1 <= s.length && k + 1 <= u.length) {
-
-        val f3 = (F(i + 1, j, k + 1), (doMove, noMove, doMove))
-        costsWithMoves += f3
-
-        assert(recursiveAlignment((i + 1, j, k + 1))._1 == f3._1)
-
-      }
-      if (j + 1 <= t.length && k + 1 <= u.length) {
-
-        val f4 = (F(i, j + 1, k + 1), (noMove, doMove, doMove))
-        costsWithMoves += f4
-
-        assert(recursiveAlignment((i, j + 1, k + 1))._1 == f4._1)
-      }
-      if (i + 1 <= s.length) {
-
-        val f5 = (F(i + 1, j, k), (doMove, noMove, noMove))
-        costsWithMoves += f5
-        assert(recursiveAlignment((i + 1, j, k))._1 == f5._1)
-
-
-      }
-      if (j + 1 <= t.length) {
-
-        val f6 = (F(i, j + 1, k), (noMove, doMove, noMove))
-        costsWithMoves += f6
-
-        assert(recursiveAlignment((i, j + 1, k))._1 == f6._1)
-
-      }
-      if (k + 1 <= u.length) {
-        val f7 = (F(i, j, k + 1), (noMove, noMove, doMove))
-        costsWithMoves += f7
-
-        assert(recursiveAlignment((i, j, k + 1))._1 == f7._1)
-
-      }
-      // old
-      //
-
-      // There are duplicates
-      //      require(costsWithMoves.map(_._1).toSet.size == costsWithMoves.size)
-
-      val bestCostWithMove: (Int, (sequences.Move, sequences.Move, sequences.Move)) = costsWithMoves.reduce((fm1, fm2) => if (fm1._1 >= fm2._1) fm1 else fm2)
-      println(s"($i, $j, $k)")
-      val move: (sequences.Move, sequences.Move, sequences.Move) = bestCostWithMove._2
-      moves = move :: moves
-
-      println(s"recursiveMoves $recursiveMoves")
-      println(s"recursiveMovesInSameOrderAsIterative $recursiveMoves")
-      println("Recursive Move" + recursiveMoves(moves.size - 1))
-      println("Iterative Move" + move)
-      val recursiveMove: sequences.MoveType = recursiveMoves(moves.size - 1)
-      require(recursiveMove == move, s"Comparing move #${moves.size - 1} Recursive move: $recursiveMove iterative move: $move All recursive moves $recursiveMoves")
-
-      totalCost += bestCostWithMove._1
-      if (move._1) i = i + 1
-      if (move._2) j = j + 1
-      if (move._3) k = k + 1
-
     }
-    val cost: Int = get(s.length, t.length, u.length)
-    println(s"accumulated cost via moves: $totalCost cost of 'right down corner' $cost")
-    //    require(totalCost == cost)
-    (cost, moves, alignments)
+
+    while (i > 0) {
+      i = i - 1
+      val move = (doMove, noMove, noMove)
+      moves += move
+    }
+
+    while (j > 0) {
+      j = j - 1
+      val move = (noMove, doMove, noMove)
+      moves += move
+    }
+
+    while (k > 0) {
+      k = k - 1
+      val move = (noMove, noMove, doMove)
+      moves += move
+    }
+
+
+    (get(s.length, t.length, u.length), moves.toList, alignments)
   }
 
   protected[sequences] def formatSequences(s: DNASeq, t: DNASeq, u: DNASeq, m: Moves): (DNASeq, DNASeq, DNASeq) = {
