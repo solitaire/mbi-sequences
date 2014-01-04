@@ -46,7 +46,7 @@ object Sequences {
 
   private def e(s: Option[Alphabet.Value], t: Option[Alphabet.Value], u: Option[Alphabet.Value])(implicit sm: SimilarityMatrix): Int = sm.get((s.getOrElse(Alphabet.GAP), t.getOrElse(Alphabet.GAP), u.getOrElse(Alphabet.GAP)))
 
-  protected def recursiveNeedlemanWunsch(s: DNASeq, t: DNASeq, u: DNASeq, sm: SimilarityMatrix) = {
+  protected[sequences] def recursiveNeedlemanWunsch(s: DNASeq, t: DNASeq, u: DNASeq, sm: SimilarityMatrix) = {
     implicit val smm = sm
     var alignments: mutable.Map[(Int, Int, Int), (Int, Moves)] = mutable.Map()
     def getOrPut(i: Int, j: Int, k: Int, f: => () => (Int, Moves)): (Int, Moves) = {
@@ -87,21 +87,21 @@ object Sequences {
         val f5: (Int, Moves) = getOrPut(i, j - 1, k, () => F(i, j - 1, k, acc))
         val f6: (Int, Moves) = getOrPut(i, j, k - 1, () => F(i, j, k - 1, acc))
 
-        val maxAndMove = ((f, f._1 + e(Some(s(i)), Some(t(j)), Some(u(k))), (doMove, doMove, doMove)) ::
-          (f1, f1._1 + e(Some(s(i)), Some(t(j)), None), (doMove, doMove, noMove)) ::
-          (f2, f2._1 + e(Some(s(i)), None, Some(u(k))), (doMove, noMove, doMove)) ::
-          (f3, f3._1 + e(None, Some(t(j)), Some(u(k))), (noMove, doMove, doMove)) ::
-          (f4, f4._1 + e(Some(s(i)), None, None), (doMove, noMove, noMove)) ::
-          (f5, f5._1 + e(None, Some(t(j)), None), (noMove, doMove, noMove)) ::
-          (f6, f6._1 + e(None, None, Some(u(k))), (noMove, noMove, doMove)) :: Nil).reduce((t1, t2) => if (t1._2 > t2._2) t1 else t2)
+        val maxAndMove = ((f, f._1 + e(Some(s(i-1)), Some(t(j-1)), Some(u(k-1))), (doMove, doMove, doMove)) ::
+          (f1, f1._1 + e(Some(s(i-1)), Some(t(j-1)), None), (doMove, doMove, noMove)) ::
+          (f2, f2._1 + e(Some(s(i-1)), None, Some(u(k-1))), (doMove, noMove, doMove)) ::
+          (f3, f3._1 + e(None, Some(t(j-1)), Some(u(k-1))), (noMove, doMove, doMove)) ::
+          (f4, f4._1 + e(Some(s(i-1)), None, None), (doMove, noMove, noMove)) ::
+          (f5, f5._1 + e(None, Some(t(j-1)), None), (noMove, doMove, noMove)) ::
+          (f6, f6._1 + e(None, None, Some(u(k-1))), (noMove, noMove, doMove)) :: Nil).reduce((t1, t2) => if (t1._2 > t2._2) t1 else t2)
 
         (maxAndMove._2, maxAndMove._3 :: maxAndMove._1._2)
       }
     }
-    F(s.length - 1, t.length - 1, u.length - 1, List())
+    F(s.length, t.length, u.length, List())
   }
 
-  protected def iterativeNeedlemanWunsch(s: DNASeq, t: DNASeq, u: DNASeq, sm: SimilarityMatrix) = {
+  protected[sequences] def iterativeNeedlemanWunsch(s: DNASeq, t: DNASeq, u: DNASeq, sm: SimilarityMatrix) = {
     var alignments: mutable.Map[(Int, Int, Int), Int] = mutable.Map()
     implicit val smm = sm
 
@@ -201,7 +201,7 @@ object Sequences {
     (get(s.length, t.length, u.length), moves)
   }
 
-  protected def formatSequences(s: DNASeq, t: DNASeq, u: DNASeq, m: Moves): (DNASeq, DNASeq, DNASeq) = {
+  protected[sequences] def formatSequences(s: DNASeq, t: DNASeq, u: DNASeq, m: Moves): (DNASeq, DNASeq, DNASeq) = {
     def formatSeq(seq: DNASeq, f: MoveType => Boolean): DNASeq = {
       m.map(f).map(v => if (v) None else Some(Alphabet.GAP)).foldRight((List[Alphabet.Value](), seq))((charOpt, listWithSeq) =>
         if (charOpt.isDefined) (listWithSeq._1.:+(charOpt.get), listWithSeq._2)
