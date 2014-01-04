@@ -195,7 +195,7 @@ object Sequences {
       position = moveTypeToPerformMove(move).performOn(position)
       nextBestAlignment = alignments(position)
     }
-    (alignments(Position(s.length, t.length, u.length)).alignment, moves, alignments)
+    (alignments(Position(s.length, t.length, u.length)).alignment, moves.reverse, alignments)
   }
 
   protected[sequences] def iterativeNeedlemanWunsch(s: DNASeq, t: DNASeq, u: DNASeq, sm: SimilarityMatrix) = {
