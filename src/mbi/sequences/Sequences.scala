@@ -78,12 +78,8 @@ object Sequences {
 
     /**
      * Head of the Moves is the move corresponding to F(I, J, K) - sequences length. Last element in moves is for F(0,0,0)
-     * @param i
-     * @param j
-     * @param k
-     * @param acc
-     * @return
-     */
+     *
+     **/
     def F(i: Int, j: Int, k: Int, acc: Moves): (Int, Moves) = {
 
       if (i == 0 && j == 0 && k == 0) (0, acc)
@@ -104,11 +100,6 @@ object Sequences {
           (f5, f5._1 + e(None, Some(t(j - 1)), None), (noMove, doMove, noMove)) ::
           (f6, f6._1 + e(None, None, Some(u(k - 1))), (noMove, noMove, doMove)) :: Nil).reduce((t1, t2) => if (t1._2 >= t2._2) t1 else t2)
 
-        val moves = maxAndMove._3
-        val ii = if (moves._1) i - 1 else i
-        val jj = if (moves._2) j - 1 else j
-        val kk = if (moves._3) k - 1 else k
-        //        println(s"($ii, $jj, $kk)")
         (maxAndMove._2, maxAndMove._3 :: maxAndMove._1._2)
       }
     }
@@ -121,9 +112,7 @@ object Sequences {
 
   case class BestAlignmentWithMoveType(alignment: Int, m: Option[MoveType])
 
-
   protected[sequences] def iterativeNeedlemanWunschVersionTwo(s: DNASeq, t: DNASeq, u: DNASeq, sm: SimilarityMatrix) = {
-
 
 
     case class PerformMove(di: Int, dj: Int, dk: Int) {
