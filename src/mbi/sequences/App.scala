@@ -1,8 +1,8 @@
 package mbi.sequences
 
 import scala.io.Source
-import nw.structures.Alphabet
-import nw.io.SimilarityMatrixReader
+import mbi.sequences.io.SimilarityMatrixReader
+import mbi.sequences.structures.Alphabet
 
 /**
  * @author Marek Lewandowski <marek.m.lewandowski@gmail.com>

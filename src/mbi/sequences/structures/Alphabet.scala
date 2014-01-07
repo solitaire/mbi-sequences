@@ -1,5 +1,10 @@
-package nw.structures
+package mbi.sequences.structures
 
+/**
+ * @author Anna Stępień
+ * @author Marek Lewandowski <marek.m.lewandowski@gmail.com>
+ * @since 1/3/14
+ */
 object Alphabet extends Enumeration {
   val A, G, C, T, GAP = Value
 

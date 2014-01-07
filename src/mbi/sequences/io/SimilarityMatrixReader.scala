@@ -1,9 +1,12 @@
-package nw.io
+package mbi.sequences.io
 
 import scala.collection.mutable.MutableList
-import nw.structures.SimilarityMatrix
-import nw.structures.Alphabet
+import mbi.sequences.structures.{SimilarityMatrix, Alphabet}
 
+/**
+ * @author Anna Stępień
+ * @since 1/3/14
+ */
 object SimilarityMatrixReader {
 
   /**

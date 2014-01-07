@@ -1,5 +1,9 @@
-package nw.structures
+package mbi.sequences.structures
 
+/**
+ * @author Anna Stępień
+ * @since 1/3/14
+ */
 class SimilarityMatrix(map: Map[Alphabet.Value, Map[Alphabet.Value, Int]]) {
   def matrix = map
   def get(item: (Alphabet.Value, Alphabet.Value, Alphabet.Value)) =

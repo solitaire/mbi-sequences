@@ -1,7 +1,7 @@
 package mbi.sequences
 
-import nw.structures.{Alphabet, SimilarityMatrix}
 import scala.collection.mutable
+import mbi.sequences.structures.{SimilarityMatrix, Alphabet}
 
 /**
  * @author Marek Lewandowski <marek.m.lewandowski@gmail.com>

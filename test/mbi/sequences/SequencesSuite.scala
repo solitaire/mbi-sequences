@@ -2,9 +2,9 @@ package mbi.sequences
 
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.Matchers
-import nw.io.SimilarityMatrixReader
 import mbi.sequences.sequences.{DNASeq, Moves}
 import scala.collection.mutable
+import mbi.sequences.io.SimilarityMatrixReader
 
 /**
  * @author Marek Lewandowski <marek.m.lewandowski@gmail.com>
