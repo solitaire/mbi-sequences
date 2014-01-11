@@ -32,13 +32,13 @@ class SequencesSuite extends FlatSpec with Matchers {
 
   "Iterative and Recursive NeedlemanWunsch" should "work on different sequences and give same results" in {
     val s1f = """>ENA|X74510|X74510.1 M.musculus ANC1 mRNA for adenine nucleotide carrier
-                |GCT""".stripMargin
+                |TGCA""".stripMargin
 
     val s2f = """>ENA|X99953|X99953.1 X.laevis mRNA for P2Y8 nucleotide receptor
-                |CGA""".stripMargin
+                |TGGTGC""".stripMargin
 
     val s3f = """>ENA|Z11978|Z11978.1 L.tarentolae gene for pyridine nucleotide linked dehydrogenase.
-                |CT""".stripMargin
+                |TGCA""".stripMargin
 
     val s1 = App.createSequenceFromLines(s1f.lines)
     val s2 = App.createSequenceFromLines(s2f.lines)
@@ -72,10 +72,12 @@ class SequencesSuite extends FlatSpec with Matchers {
       assert(seq1 == seq)
       assert(seq2 == seq)
       assert(seq3 == seq)
+      assert(a1 == (seq1, seq2, seq3).zipped.foldLeft(0)( _ + similarityMatrix.get(_)))
       val (seq1i, seq2i, seq3i, a2) = Sequences.NeedlemanWunsch(seq, seq, seq, similarityMatrix, recursive = false)
       assert(seq1i == seq)
       assert(seq2i == seq)
       assert(seq3i == seq)
+      assert(a2 == (seq1i, seq2i, seq3i).zipped.foldLeft(0)( _ + similarityMatrix.get(_)))
     })
   }
 
