@@ -1,0 +1,57 @@
+\documentclass[12pt, a4paper]{article}
+\usepackage{polski}
+\usepackage[utf8]{inputenc}
+\usepackage[polish]{babel} 
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage[numbers]{natbib}
+\title{\textbf{Implementacja algorytmu badającego podobieństwo trzech sekwencji}}
+\author{Anna Stępień \\ Marek Lewandowski}
+\date{}
+\setlength{\parindent}{0in}
+
+\begin{document}
+\maketitle
+
+\section{Zadanie}
+Celem zadania jest zrealizowanie aplikacji, która oblicza najlepsze dopasowanie dla trzech sekwencji. 
+
+Do realizacji zadania zostanie wykorzystany algorytm Needlemana -- Wunscha, którego uogólnienie dla trzech sekwencji można przedstawić następująco:
+
+\begin{equation}
+  F(i, j, k)= max \begin{cases}
+    F(i-1, j-1, k-1) + e(s_i, t_j, u_k)\\
+    F(i-1, j-1, k) + e(s_i, t_j, -)\\
+    F(i-1, j, k-1) + e(s_i, -,u_k)\\
+    F(i, j-1, k-1) + e(-, t_j, u_k)\\
+    F(i-1, j, k) + e(s_i, -, -)\\
+    F(i, j-1, k) + e(-, t_j, -)\\
+    F(i, j, k-1) + e(-, -, u_k)
+  \end{cases}
+\end{equation}
+
+gdzie:\\
+macierz kar i nagród uwzględnia przerwy\\
+$e(s_i, t_j, u_k) = e(s_i, t_j) + e(s_i, u_k) + e(t_j, u_k)$\\
+
+\section{Opis aplikacji}
+Aplikacja została zrealizowana w~języku \href{http://www.scala-lang.org/}{Scala}. W~stosunku do założeń przedstawionych w~dokumentacji wstępnej, wprowadziliśmy jedną zmianę związaną ze sposobem wczytywania sekwencji. Jeden plik wejściowy, który zawierał trzy sekwencje oddzielone znakiem nowej linii, został zastąpiony poprzez osobne pliki dla każdej z~sekwencji. Format ten jest bardziej przyjazny dla użytkownika -- nie jest konieczne tworzenie specjalnych plików wejściowych. Ponadto wprowadziliśmy drugi obsługiwany format danych -- format FASTA. 
+
+W~ramach projektu zrealizowaliśmy dwie wersje algorytmu Needlemana-Wunscha -- iteracyjną oraz rekurencyjną.
+
+	\subsection{Wejście}
+	Aplikacja na wejściu przyjmuje 3 ścieżki do plików z~sekwencjami (są one określone przez flagę \texttt{-seq}) oraz ścieżkę do pliku z~macierzą podobieństwa (określoną przez parametr \texttt{-sm}). Domyślnie uruchamiana jest iteracyjna wersja algorytmu. Wersja rekurencyjna uruchamiana jest po podaniu flagi \texttt{-r}.
+	Przykład uruchomienia aplikacji: \\
+	\texttt{scala mbi-sequences\_2.10-1.0.jar -seq s1 s2 s3 -sm similarity-matrix}
+	\subsection{Wyjście}
+	Wyjściem aplikacji jest najlepsze dopasowanie oraz jego koszt. Domyślnie dane te wypisywane są na standardowe wyjście -- po przekazaniu nazwy pliku możliwy jest zapisanie otrzymanych wyników.
+	
+\section{Testy}
+
+\section{Wnioski}
+
+\nocite{*}
+\bibliographystyle{plainnat}
+\bibliography{bibliography}
+\end{document}
