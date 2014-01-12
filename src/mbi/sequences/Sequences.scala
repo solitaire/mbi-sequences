@@ -42,10 +42,10 @@ object Sequences {
 
   private def marginalCosts(i: Int, j: Int, k: Int, sm: SimilarityMatrix) = {
     if (i == 0 && j == 0 && k == 0) (0, Nil)
-    else if (i == 0 && j == 0) (k * sm.gapCost, (noMove, noMove, doMove) :: Nil)
-    else if (i == 0 && k == 0) (j * sm.gapCost, (noMove, doMove, noMove) :: Nil)
-    else if (j == 0 && k == 0) (i * sm.gapCost, (doMove, noMove, noMove) :: Nil)
-    else if (i == 0) ((j + k) * sm.gapCost, (noMove, doMove, doMove) :: Nil)
+    else if (i == 0 && j == 0) (2 * k * sm.gapCost, (noMove, noMove, doMove) :: Nil)
+    else if (i == 0 && k == 0) (2 * j * sm.gapCost, (noMove, doMove, noMove) :: Nil)
+    else if (j == 0 && k == 0) (2 * i * sm.gapCost, (doMove, noMove, noMove) :: Nil)
+    else if (i == 0) ((k + j) * sm.gapCost, (noMove, doMove, doMove) :: Nil)
     else if (j == 0) ((i + k) * sm.gapCost, (doMove, noMove, doMove) :: Nil)
     else if (k == 0) ((i + j) * sm.gapCost, (doMove, doMove, noMove) :: Nil)
     else throw new Error("unexpected")
