@@ -62,6 +62,7 @@ object Sequences {
       def getFromMatrix(i: Int, j: Int, k: Int): Option[(Int, Moves)] = alignments.get((i, j, k))
 
       def putToMatrix(i: Int, j: Int, k: Int, data: (Int, Moves)) = alignments += (((i, j, k), data))
+
       if (i == 0 || j == 0 || k == 0) {
         val costs: (Int, List[(sequences.Move, sequences.Move, sequences.Move)]) = marginalCosts(i, j, k, sm)
         alignments += (((i, j, k), costs))

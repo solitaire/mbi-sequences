@@ -10,4 +10,6 @@ class SimilarityMatrix(map: Map[Alphabet.Value, Map[Alphabet.Value, Int]]) {
     matrix.get(item._1).get(item._2) + matrix.get(item._1).get(item._3) + matrix.get(item._2).get(item._3)
 
   def gapCost = matrix.get(Alphabet.A).get(Alphabet.GAP)
+
+  override def equals(obj: scala.Any): Boolean = obj.isInstanceOf[SimilarityMatrix] && map.equals(obj.asInstanceOf[SimilarityMatrix].matrix)
 }

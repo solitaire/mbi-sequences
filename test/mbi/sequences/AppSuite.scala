@@ -50,4 +50,12 @@ class AppSuite extends FlatSpec with Matchers {
     assert(App.createSequenceFromLines(input.lines).forall(_ != GAP))
   }
 
+  it should "read sequence" in {
+    val input = """>ENA|X99953|X99953.1 X.laevis mRNA for P2Y8 nucleotide receptor
+                |TGGTGC""".stripMargin
+
+    val sequenceOfLetters: List[Value] = App.createSequenceFromLines(input.lines)
+    assert(sequenceOfLetters === List(T,G,G,T,G,C))
+  }
+
 }
