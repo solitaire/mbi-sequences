@@ -41,13 +41,14 @@ object Sequences {
   }
 
   private def marginalCosts(i: Int, j: Int, k: Int, sm: SimilarityMatrix) = {
+    def repeatMove(times : Int, move: MoveType) = { for(i <- 0 until times) yield move }.toList
     if (i == 0 && j == 0 && k == 0) (0, Nil)
-    else if (i == 0 && j == 0) (2 * k * sm.gapCost, (noMove, noMove, doMove) :: Nil)
-    else if (i == 0 && k == 0) (2 * j * sm.gapCost, (noMove, doMove, noMove) :: Nil)
-    else if (j == 0 && k == 0) (2 * i * sm.gapCost, (doMove, noMove, noMove) :: Nil)
-    else if (i == 0) ((k + j) * sm.gapCost, (noMove, doMove, doMove) :: Nil)
-    else if (j == 0) ((i + k) * sm.gapCost, (doMove, noMove, doMove) :: Nil)
-    else if (k == 0) ((i + j) * sm.gapCost, (doMove, doMove, noMove) :: Nil)
+    else if (i == 0 && j == 0) (2 * k * sm.gapCost, repeatMove(k, (noMove, noMove, doMove)))
+    else if (i == 0 && k == 0) (2 * j * sm.gapCost, repeatMove(j, (noMove, doMove, noMove)))
+    else if (j == 0 && k == 0) (2 * i * sm.gapCost, repeatMove(i, (doMove, noMove, noMove)))
+    else if (i == 0) ((k + j) * sm.gapCost, repeatMove(j + k, (noMove, doMove, doMove)))
+    else if (j == 0) ((i + k) * sm.gapCost, repeatMove(i + k, (doMove, noMove, doMove)))
+    else if (k == 0) ((i + j) * sm.gapCost, repeatMove(i+j, (doMove, doMove, noMove)))
     else throw new Error("unexpected")
   }
 
