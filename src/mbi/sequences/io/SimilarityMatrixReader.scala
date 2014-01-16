@@ -42,7 +42,7 @@ object SimilarityMatrixReader {
             (Alphabet.T, t.toInt),
             (Alphabet.GAP, gap.toInt))
         }
-        case _ => //TODO: handle error
+        case _ =>
       }
     })
     new SimilarityMatrix(Alphabet.values.toList zip values toMap)

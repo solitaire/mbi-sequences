@@ -1,13 +1,15 @@
 package mbi.sequences
 
+import scala.collection.mutable
+
+import mbi.sequences.io.SimilarityMatrixReader
+import mbi.sequences.sequences.DNASeq
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.Matchers
-import mbi.sequences.sequences.{DNASeq, Moves}
-import scala.collection.mutable
-import mbi.sequences.io.SimilarityMatrixReader
 
 /**
  * @author Marek Lewandowski <marek.m.lewandowski@gmail.com>
+ * @author Anna Stępień
  * @since 1/3/14
  */
 class SequencesSuite extends FlatSpec with Matchers {
@@ -81,16 +83,23 @@ class SequencesSuite extends FlatSpec with Matchers {
     })
   }
 
-  def print(ms: Moves) {
-    var i = 0
-    var j = 0
-    var k = 0
-    println(s"($i, $j, $k)")
-    ms.reverse.foreach(m => {
-      if (m._1) i = i + 1
-      if (m._2) j = j + 1
-      if (m._3) k = k + 1
-      println(s"($i, $j, $k)")
-    })
+  "Alignment cost" should "match value computed using similarity matrix" in {
+    val s1f = """GGAGAATAGGAATAGGAATGGGTGAATAGATTGAAAGATAGAATAAGTCGTATTTAACTAACTCCCAATCCACCATTCTCAATTCCTCCAACATACTCG""".stripMargin
+
+    val s2f = """GGAGAATAGGAATAGGGTGAATAGATTGAAAGATAGAATAAGTCGTATTTAACTAACTCCCAATCCACCAAATTCCTCCAACATACTCG""".stripMargin
+
+    val s3f = """GGAGAATAGGAATAGGAATGGGTGAATAGATTGAAAGATAGAATAAGTCGTATTTAACTAACTCCCAATCCACCATTCTCAATTCCTCCAACAT""".stripMargin
+
+    val s1 = App.createSequenceFromLines(s1f.lines)
+    val s2 = App.createSequenceFromLines(s2f.lines)
+    val s3 = App.createSequenceFromLines(s3f.lines)
+    val similarityMatrix = SimilarityMatrixReader.read(similarityMatrixStr.lines)
+
+    val (seq1, seq2, seq3, a1) = Sequences.NeedlemanWunsch(s1, s2, s3, similarityMatrix, recursive = true)
+    val (seq1i, seq2i, seq3i, a2) = Sequences.NeedlemanWunsch(s1, s2, s3, similarityMatrix, recursive = false)
+
+    assert(a1 == (seq1, seq2, seq3).zipped.foldLeft(0)( _ + similarityMatrix.get(_)))
+    assert(a2 == (seq1i, seq2i, seq3i).zipped.foldLeft(0)( _ + similarityMatrix.get(_)))
   }
+
 }
