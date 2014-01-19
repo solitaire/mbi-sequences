@@ -6,6 +6,7 @@
 \usepackage{hyperref}
 \usepackage{amsmath}
 \usepackage[numbers]{natbib}
+\usepackage[section]{placeins}
 \title{\textbf{Implementacja algorytmu badającego podobieństwo trzech sekwencji}}
 \author{Anna Stępień \\ Marek Lewandowski}
 \date{}
@@ -45,11 +46,35 @@ W~ramach projektu zrealizowaliśmy dwie wersje algorytmu Needlemana-Wunscha -- i
 	Przykład uruchomienia aplikacji: \\
 	\texttt{scala mbi-sequences\_2.10-1.0.jar -seq s1 s2 s3 -sm similarity-matrix}
 	\subsection{Wyjście}
-	Wyjściem aplikacji jest najlepsze dopasowanie oraz jego koszt. Domyślnie dane te wypisywane są na standardowe wyjście -- po przekazaniu nazwy pliku możliwy jest zapisanie otrzymanych wyników.
+	Wyjściem aplikacji jest najlepsze dopasowanie oraz jego koszt. Domyślnie dane te wypisywane są na standardowe wyjście.
 	
 \section{Testy}
+W ramach testowania zaimplementowanego algorytmu przeprowadzone zostały dwa rodzaje testów: testy jednostkowe oraz testy funkcjonalne.
+	\subsection{Testy jednostkowe}
+	Testy jednostkowe miały na celu zweryfikowanie poprawności implementacji algorytmu. Przede wszystkim zweryfikowana została poprawność następujących funkcji programu:
+	\begin{itemize}
+		\item wczytywanie sekwencji z plików w prostym formacie oraz formacie FASTA,
+		\item wczytywanie macierzy podobieństwa z pliku,
+		\item działanie wersji iteracyjnej algorytmu,
+		\item działanie wersji rekurencyjnej algorytmu,
+		\item poprawność zwracanego kosztu dopasowania.
+	\end{itemize}
+	
+	\subsection{Testy funkcjonalne}
+	Podczas testów funkcjonalnych aplikacji zweryfikowane zostało działanie aplikacji dla rzeczywistych sekwencji pozyskanych ze strony \footnote{http://www.ebi.ac.uk}.
+	Na potrzeby testów zostały utworzone dwa zbiory danych zawierające sekwencje o zróżnicowanej długości (długości wahały się od ok. 20 do ok. 100) -- jeden zbiór zawierał sekwencje w prostym formacie, natomiast drugi zawierał te same sekwencje w formacie FASTA. Dla każdego przypadku testowego została wybrana jedna sekwencja, na podstawie której, po dokonaniu modyfikacji (usunięciu losowych elementów oraz wprowadzeniu punkowych mutacji) utworzone zostały trzy sekwencje.
+	
+	Dla tak przygotowanych zestawów danych, kolejno przetestowane zostały następujące przypadki:
+	\begin{itemize}
+		\item działanie iteracyjnej wersji algorytmu dla sekwencji w prostym formacie,
+		\item działanie iteracyjnej wersji algorytmu dla sekwencji w formacie FASTA,
+		\item działanie rekurencyjnej wersji algorytmu dla sekwencji w prostym formacie,
+		\item działanie rekurencyjnej wersji algorytmu dla sekwencji w formacie FASTA.
+	\end{itemize}
+	Następnie porównano otrzymane wyniki dla każdego z przypadków. Wyniki otrzymane dla obu formatów, zarówno przez algorytm w wersji iteracyjnej jak i rekurencyjnej, były jednakowe.
 
-\section{Wnioski}
+\section{Podsumowanie}
+W ramach projektu zaimplementowane zostały dwie wersje algorytmu Needlemana-Wunscha badające podobieństwo trzech sekwencji. Zrealizowane zostały założenia przedstawione w dokumentacji wstępnej, a także rozszerzono aplikację o dodatkowy format danych. Przeprowadzone testy wykazały prawidłowe działanie stworzonej aplikacji. 
 
 \nocite{*}
 \bibliographystyle{plainnat}
